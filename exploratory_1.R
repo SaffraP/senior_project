@@ -66,14 +66,35 @@ View(train %>% select(Census_ActivationChannel))
 train %>% count(SkuEdition)
 train %>% count(SmartScreen == "NA")
 train %>% filter(HasDetections == 1) %>% count(Census_IsWIMBootEnabled)
-
+## End Scratch Code.
 
 ##########################################################
 # Read in data about feature descriptions
 feature_descriptions <- read_csv("Data/feature_descriptions.csv")
 
-# How many columns are in each group. May still need to narrow down the 1 group. 
+# How many columns are being kept and how many are being discarded. 
 table(feature_descriptions$Worth_Keeping_Overall)
 
+# Data type of each column (https://swcarpentry.github.io/r-novice-inflammation/13-supp-data-structures/)
+sapply(train, class)
 
+# Goal: Group the data into numeric, categorical, and binary. 
+numeric_features <- select_if(train, is.numeric)
+character_features <- select_if(train, is.character)
+names(numeric_features)
+names(character_features)
 
+## Binary Features
+# CensusHasOpticalDiskDrive
+# CensusIsAlwaysOnAlwaysConnectedCapable
+# CensusIsPenCapable
+# CensusIsPortableOperatingSystem
+# CensusIsSecureBootEnabled
+# CensusIsTouchEnabled
+# CensusIsVirtualDevice
+# Firewall
+# HasTpm
+# IsProtected
+# IsSxsPassiveMode
+# SMode
+# WdftIsGamer
