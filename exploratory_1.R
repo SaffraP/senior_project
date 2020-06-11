@@ -79,22 +79,83 @@ table(feature_descriptions$Worth_Keeping_Overall)
 sapply(train, class)
 
 # Goal: Group the data into numeric, categorical, and binary. 
-numeric_features <- select_if(train, is.numeric)
-character_features <- select_if(train, is.character)
-names(numeric_features)
-names(character_features)
+numeric_type <- select_if(train, is.numeric)
+character_type <- select_if(train, is.character)
+names(numeric_type)
+names(character_type)
 
-## Binary Features
-# CensusHasOpticalDiskDrive
-# CensusIsAlwaysOnAlwaysConnectedCapable
-# CensusIsPenCapable
-# CensusIsPortableOperatingSystem
-# CensusIsSecureBootEnabled
-# CensusIsTouchEnabled
-# CensusIsVirtualDevice
-# Firewall
-# HasTpm
-# IsProtected
-# IsSxsPassiveMode
-# SMode
-# WdftIsGamer
+# Create a list of each group
+numeric_features <- train %>% 
+  select(Census_InternalPrimaryDiagonalDisplaySizeInInches,
+                                     Census_PrimaryDiskTotalCapacity,
+                                     Census_ProcessorCoreCount,
+                                     Census_SystemVolumeTotalCapacity,
+                                     Census_TotalPhysicalRAM) 
+numeric_features[, c(1:5)] <- sapply(numeric_features[, c(1:5)], as.numeric)
+sapply(numeric_features, class)
+
+
+logical_features <- train %>% select(Census_HasOpticalDiskDrive, 
+                                    Census_IsAlwaysOnAlwaysConnectedCapable, 
+                                    Census_IsPenCapable, 
+                                    Census_IsPortableOperatingSystem, 
+                                    Census_IsSecureBootEnabled, 
+                                    Census_IsTouchEnabled, 
+                                    Census_IsVirtualDevice, 
+                                    Firewall, 
+                                    HasTpm, 
+                                    IsProtected, 
+                                    IsSxsPassiveMode, 
+                                    SMode, 
+                                    Wdft_IsGamer)
+logical_features[, c(1:13)] <- sapply(logical_features[, c(1:13)], as.logical)
+sapply(logical_features, class)
+lapply(logical_features, table) # Shows how many values are T/F. Need to figure out what happened to the NA's though and possibly drop them or fill them in with other values. 
+
+
+catagorical_features <- train %>% select(-c(Census_InternalPrimaryDiagonalDisplaySizeInInches,
+                                            Census_PrimaryDiskTotalCapacity,
+                                            Census_ProcessorCoreCount,
+                                            Census_SystemVolumeTotalCapacity,
+                                            Census_TotalPhysicalRAM,
+                                            Census_HasOpticalDiskDrive, 
+                                            Census_IsAlwaysOnAlwaysConnectedCapable, 
+                                            Census_IsPenCapable, 
+                                            Census_IsPortableOperatingSystem, 
+                                            Census_IsSecureBootEnabled, 
+                                            Census_IsTouchEnabled, 
+                                            Census_IsVirtualDevice, 
+                                            Firewall, 
+                                            HasTpm, 
+                                            IsProtected, 
+                                            IsSxsPassiveMode, 
+                                            SMode, 
+                                            Wdft_IsGamer))
+# I broke this part up into three smaller sections so that I can better tell if the program is frozen or not. 
+catagorical_features[, c(1:20)] <- sapply(catagorical_features[, c(1:20)], as.character)
+catagorical_features[, c(21:40)] <- sapply(catagorical_features[, c(21:40)], as.character)
+catagorical_features[, c(40:65)] <- sapply(catagorical_features[, c(40:65)], as.character)
+sapply(catagorical_features, class)
+
+
+
+## Figure out how many NA's are in each logical feature
+logical_na <- count_of_na %>% 
+  filter(Features %in% c("Census_HasOpticalDiskDrive", 
+         "Census_IsAlwaysOnAlwaysConnectedCapable", 
+         "Census_IsPenCapable", 
+         "Census_IsPortableOperatingSystem", 
+         "Census_IsSecureBootEnabled", 
+         "Census_IsTouchEnabled", 
+         "Census_IsVirtualDevice", 
+         "Firewall", 
+         "HasTpm", 
+         "IsProtected", 
+         "IsSxsPassiveMode", 
+         "SMode", 
+         "Wdft_IsGamer"))
+
+table(apply(logical_features, MARGIN = 1, function(x) sum(is.na(x)))) 
+# This indicates that ~7 mil rows don't have missing values. 995147 are missing at least one value. 
+
+table(apply(train, MARGIN = 1, function(x) sum(is.na(x)))) 
