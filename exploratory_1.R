@@ -159,3 +159,27 @@ table(apply(logical_features, MARGIN = 1, function(x) sum(is.na(x))))
 # This indicates that ~7 mil rows don't have missing values. 995147 are missing at least one value. 
 
 table(apply(train, MARGIN = 1, function(x) sum(is.na(x)))) 
+
+
+## Count how many unique values are in each column (grouped by catagorical, numeric, and logical)
+library(tidyr)
+
+logical_features %>% 
+  summarise_all(n_distinct) %>% 
+  gather("Feature", "Unique_Count", 1:13)
+
+catagorical_features %>% 
+  summarise_all(n_distinct) %>% 
+  gather("Feature", "Unique_Count", 1:65)
+
+numeric_features %>% 
+  summarise_all(n_distinct) %>% 
+  gather("Feature", "Unique_Count", 1:5)
+
+
+# One Hot encode catagorical_features
+library(caret)
+
+dmy <- dummyVars(" ~ ProductName", data = catagorical_features)
+trsf <- data.frame(predict(dmy, newdata = catagorical_features))
+trsf
