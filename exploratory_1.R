@@ -113,7 +113,7 @@ sapply(logical_features, class)
 lapply(logical_features, table) # Shows how many values are T/F. Need to figure out what happened to the NA's though and possibly drop them or fill them in with other values. 
 
 
-catagorical_features <- train %>% select(-c(Census_InternalPrimaryDiagonalDisplaySizeInInches,
+categorical_features <- train %>% select(-c(Census_InternalPrimaryDiagonalDisplaySizeInInches,
                                             Census_PrimaryDiskTotalCapacity,
                                             Census_ProcessorCoreCount,
                                             Census_SystemVolumeTotalCapacity,
@@ -132,10 +132,10 @@ catagorical_features <- train %>% select(-c(Census_InternalPrimaryDiagonalDispla
                                             SMode, 
                                             Wdft_IsGamer))
 # I broke this part up into three smaller sections so that I can better tell if the program is frozen or not. 
-catagorical_features[, c(1:20)] <- sapply(catagorical_features[, c(1:20)], as.character)
-catagorical_features[, c(21:40)] <- sapply(catagorical_features[, c(21:40)], as.character)
-catagorical_features[, c(40:65)] <- sapply(catagorical_features[, c(40:65)], as.character)
-sapply(catagorical_features, class)
+categorical_features[, c(1:20)] <- sapply(categorical_features[, c(1:20)], as.character)
+categorical_features[, c(21:40)] <- sapply(categorical_features[, c(21:40)], as.character)
+categorical_features[, c(40:65)] <- sapply(categorical_features[, c(40:65)], as.character)
+sapply(categorical_features, class)
 
 
 
@@ -161,25 +161,47 @@ table(apply(logical_features, MARGIN = 1, function(x) sum(is.na(x))))
 table(apply(train, MARGIN = 1, function(x) sum(is.na(x)))) 
 
 
-## Count how many unique values are in each column (grouped by catagorical, numeric, and logical)
+## Count how many unique values are in each column (grouped by categorical, numeric, and logical)
 library(tidyr)
 
-logical_features %>% 
+unique_values_logical <- logical_features %>% 
   summarise_all(n_distinct) %>% 
-  gather("Feature", "Unique_Count", 1:13)
+  gather("Feature", "Unique_Count", 1:13) %>% 
+  rename(Feature_Name = Feature)  
+unique_values_logical$Group <- ("Logical")
 
-catagorical_features %>% 
+unique_values_categorical <- categorical_features %>% 
   summarise_all(n_distinct) %>% 
-  gather("Feature", "Unique_Count", 1:65)
+  gather("Feature", "Unique_Count", 1:65) %>% 
+  rename(Feature_Name = Feature)
+unique_values_categorical$Group <- ("Categorical")
 
-numeric_features %>% 
+unique_values_numeric <- numeric_features %>% 
   summarise_all(n_distinct) %>% 
-  gather("Feature", "Unique_Count", 1:5)
+  gather("Feature", "Unique_Count", 1:5) %>% 
+  rename(Feature_Name = Feature)
+unique_values_numeric$Group <- ("Numeric")
+
+unique_values_count <- rbind(unique_values_logical, unique_values_categorical, unique_values_numeric) 
 
 
-# One Hot encode catagorical_features
+# One Hot encode categorical_features
 library(caret)
+#dmy <- dummyVars(" ~ ProductName", data = categorical_features)
+#trsf <- data.frame(predict(dmy, newdata = categorical_features))
+#trsf
 
-dmy <- dummyVars(" ~ ProductName", data = catagorical_features)
-trsf <- data.frame(predict(dmy, newdata = catagorical_features))
-trsf
+
+train$AppVersion <- str_sub(train$AppVersion, 1, 4)
+
+# All the categorical features that are worth keeping
+temp <- feature_descriptions %>% 
+  filter(Data_Type == "Categorical", Worth_Keeping_Overall == 1) %>% 
+  select(Worth_Keeping_Overall, Feature_Name)
+# All the categorical features that are worth keeping overall and their unique count. 
+View(merge(temp, unique_values_categorical, by = "Feature_Name", all.x = T))
+
+
+
+
+
