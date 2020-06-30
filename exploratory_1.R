@@ -134,7 +134,9 @@ categorical_features <- train %>% select(-c(Census_InternalPrimaryDiagonalDispla
 # I broke this part up into three smaller sections so that I can better tell if the program is frozen or not. 
 categorical_features[, c(1:20)] <- sapply(categorical_features[, c(1:20)], as.character)
 categorical_features[, c(21:40)] <- sapply(categorical_features[, c(21:40)], as.character)
-categorical_features[, c(40:65)] <- sapply(categorical_features[, c(40:65)], as.character)
+categorical_features[, c(40:50)] <- sapply(categorical_features[, c(40:50)], as.character)
+categorical_features[, c(50:65)] <- sapply(categorical_features[, c(50:65)], as.character)
+
 sapply(categorical_features, class)
 
 
@@ -192,8 +194,6 @@ library(caret)
 #trsf
 
 
-train$AppVersion <- str_sub(train$AppVersion, 1, 4)
-
 # All the categorical features that are worth keeping
 temp <- feature_descriptions %>% 
   filter(Data_Type == "Categorical", Worth_Keeping_Overall == 1) %>% 
@@ -201,7 +201,37 @@ temp <- feature_descriptions %>%
 # All the categorical features that are worth keeping overall and their unique count. 
 View(merge(temp, unique_values_categorical, by = "Feature_Name", all.x = T))
 
+# Beginning to change the training data into a version that can be one hot encoded. 
+# AppVersion
+train$AppVersion <- str_sub(train$AppVersion, 1, 4)
+
+# Census_FirmwareVersionIdentifier NOT WORKING
+train$Census_FirmwareVersionIdentifier <- train %>% 
+  mutate(Census_FirmwareVersionIdentifier = case_when(
+    Census_FirmwareVersionIdentifier >= 1 || Census_FirmwareVersionIdentifier < 10000 ~ "1",
+    Census_FirmwareVersionIdentifier >= 10000 || Census_FirmwareVersionIdentifier < 20000 ~ "2",
+    Census_FirmwareVersionIdentifier >= 20000 || Census_FirmwareVersionIdentifier < 30000 ~ "3",
+    Census_FirmwareVersionIdentifier >= 30000 || Census_FirmwareVersionIdentifier < 40000 ~ "4",
+    Census_FirmwareVersionIdentifier >= 40000 || Census_FirmwareVersionIdentifier < 50000 ~ "5",
+    Census_FirmwareVersionIdentifier >= 50000 || Census_FirmwareVersionIdentifier < 60000 ~ "6",
+    Census_FirmwareVersionIdentifier >= 60000 || Census_FirmwareVersionIdentifier < 70000 ~ "7",
+    Census_FirmwareVersionIdentifier >= 70000 ~ "8",
+    T ~ "NA"
+  ))
+
+train$Census_FirmwareVersionIdentifier <- train %>% 
+  mutate(Census_FirmwareVersionIdentifier = case_when(
+    Census_FirmwareVersionIdentifier < 10000 ~ "1",
+    Census_FirmwareVersionIdentifier < 20000 ~ "2",
+    Census_FirmwareVersionIdentifier < 30000 ~ "3",
+    Census_FirmwareVersionIdentifier < 40000 ~ "4",
+    Census_FirmwareVersionIdentifier < 50000 ~ "5",
+    Census_FirmwareVersionIdentifier < 60000 ~ "6",
+    Census_FirmwareVersionIdentifier < 70000 ~ "7",
+    Census_FirmwareVersionIdentifier >= 70000 ~ "8",
+    T ~ "NA"
+  ))
 
 
-
-
+# AppVersion
+train$AvSigVersion <- str_sub(train$AvSigVersion, 1, 5)
