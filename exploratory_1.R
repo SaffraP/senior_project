@@ -1,7 +1,7 @@
 # Load libraries
 library(tidyverse)
 
-# Read in the data
+###RUN # Read in the data 
 train <- read_csv("Data/train.csv")
 
 # Data structure
@@ -69,7 +69,7 @@ train %>% filter(HasDetections == 1) %>% count(Census_IsWIMBootEnabled)
 ## End Scratch Code.
 
 ##########################################################
-# Read in data about feature descriptions
+###RUN # Read in data about feature descriptions
 feature_descriptions <- read_csv("Data/feature_descriptions.csv")
 
 # How many columns are being kept and how many are being discarded. 
@@ -131,7 +131,7 @@ categorical_features <- train %>% select(-c(Census_InternalPrimaryDiagonalDispla
                                             IsSxsPassiveMode, 
                                             SMode, 
                                             Wdft_IsGamer))
-# I broke this part up into three smaller sections so that I can better tell if the program is frozen or not. 
+# I broke this part up into smaller sections so that I can better tell if the program is frozen or not. 
 categorical_features[, c(1:20)] <- sapply(categorical_features[, c(1:20)], as.character)
 categorical_features[, c(21:40)] <- sapply(categorical_features[, c(21:40)], as.character)
 categorical_features[, c(40:50)] <- sapply(categorical_features[, c(40:50)], as.character)
@@ -194,16 +194,16 @@ library(caret)
 #trsf
 
 
-# All the categorical features that are worth keeping
+###RUN # All the categorical features that are worth keeping
 temp <- feature_descriptions %>% 
   filter(Data_Type == "Categorical", Worth_Keeping_Overall == 1) %>% 
   select(Worth_Keeping_Overall, Feature_Name)
-# All the categorical features that are worth keeping overall and their unique count. 
+###RUN # All the categorical features that are worth keeping overall and their unique count. 
 View(merge(temp, unique_values_categorical, by = "Feature_Name", all.x = T))
 
 # Beginning to change the training data into a version that can be one hot encoded. 
-# AppVersion
-train$AppVersion <- str_sub(train$AppVersion, 1, 4)
+###RUN # AppVersion
+train$AppVersion_2 <- str_sub(train$AppVersion, 1, 4)
 
 # Census_FirmwareVersionIdentifier NOT WORKING
 train$Census_FirmwareVersionIdentifier <- train %>% 
@@ -232,6 +232,76 @@ train$Census_FirmwareVersionIdentifier <- train %>%
     T ~ "NA"
   ))
 
+# OSBuildLab 
+train$OsBuildLab_2 <- str_sub(train$OsBuildLab, 1, 5)
+View(table(train$OsBuildLab_2))
 
-# AppVersion
-train$AvSigVersion <- str_sub(train$AvSigVersion, 1, 5)
+# Census_OSVersion 
+View(table(train$Census_OSVersion))
+
+train$Census_OSVersion_2 <- str_sub(train$Census_OSVersion, 1, 5)
+View(table(train$Census_OSVersion))
+
+train_2 <- as.data.frame(train)
+
+pattern_1 <- "\\d\\.\\d\\.\\d\\."
+pattern_2 <- "\\d[[:punct:]]\\d[[:punct:]]\\d[[:punct:]]"
+View(str_extract_all(train_2$Census_OSVersion, pattern_1, simplify = T))
+regmatches(train_2$Census_OSVersion, gregexpr(pattern_2, train_2$Census_OSVersion)) 
+
+
+# IeVerIdentifier
+View(table(train$OsBuildLab_2))
+
+
+# GeoNameIdentifier. Idk
+View(table(train$GeoNameIdentifier))
+
+train$GeoNameIdentifier <- as.numeric(train$GeoNameIdentifier)
+
+train$GeoNameIdentifier_2 <- train %>% 
+  mutate(GeoNameIdentifier_2 = case_when(GeoNameIdentifier == 100 ~ "first",
+                                         GeoNameIdentifier < 200 ~ "second",
+                                         GeoNameIdentifier < 300 ~ "third",
+                                         T ~ "NA"))
+View(table(train$GeoNameIdentifier_2)) #Error in View : attempt to make a table with >= 2^31 elements
+
+# Census_OSBuildRevision
+View(table(train$Census_OSBuildRevision))
+
+# LocaleEnglishNameIdentifier
+View(table(train$Census_OSBuildRevision))
+
+# CountryIdentifier
+View(table(train$CountryIdentifier))
+
+# Census_OSBuildNumber
+View(table(train$Census_OSBuildNumber))
+
+# Census_OSUILocaleIdentifier
+View(table(train$Census_OSUILocaleIdentifier))
+
+# OsBuild
+View(table(train$OsBuild))
+
+# EngineVersion
+View(table(train$EngineVersion))
+
+# OsVer
+View(table(train$OsVer))
+
+# Census_ChassisTypeName
+View(table(train$Census_ChassisTypeName))
+
+# OrganizationIdentifier
+View(table(train$OrganizationIdentifier))
+
+
+
+
+
+
+
+
+
+
