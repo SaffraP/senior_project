@@ -74,8 +74,8 @@ feature_descriptions <- read_csv("Data/feature_descriptions.csv")
 
 ###RUN # Select only the data that is considered "worth keeping"
 worth_keeping <- as.list(feature_descriptions %>% 
-  filter(Worth_Keeping_Overall == 1) %>% 
-  select(Feature_Name))
+                           filter(Worth_Keeping_Overall == 1) %>% 
+                           select(Feature_Name))
 worth_keeping <- unlist(worth_keeping, use.names=FALSE)
 
 train_filtered <- train %>% 
@@ -162,38 +162,38 @@ sapply(numeric_features, class)
 
 
 logical_features <- train_filtered %>% select(Census_HasOpticalDiskDrive, 
-                                     Census_IsAlwaysOnAlwaysConnectedCapable, 
-                                     Census_IsPenCapable, 
-                                     Census_IsPortableOperatingSystem, 
-                                     Census_IsSecureBootEnabled, 
-                                     Census_IsTouchEnabled, 
-                                     Firewall, 
-                                     HasTpm, 
-                                     IsProtected, 
-                                     IsSxsPassiveMode, 
-                                     SMode, 
-                                     Wdft_IsGamer)
+                                              Census_IsAlwaysOnAlwaysConnectedCapable, 
+                                              Census_IsPenCapable, 
+                                              Census_IsPortableOperatingSystem, 
+                                              Census_IsSecureBootEnabled, 
+                                              Census_IsTouchEnabled, 
+                                              Firewall, 
+                                              HasTpm, 
+                                              IsProtected, 
+                                              IsSxsPassiveMode, 
+                                              SMode, 
+                                              Wdft_IsGamer)
 logical_features[, c(1:12)] <- sapply(logical_features[, c(1:12)], as.logical)
 sapply(logical_features, class)
 lapply(logical_features, table) # Shows how many values are T/F. Need to figure out what happened to the NA's though and possibly drop them or fill them in with other values. 
 
 
 categorical_features <- train_filtered %>% select(-c(Census_PrimaryDiskTotalCapacity,
-                                            Census_ProcessorCoreCount,
-                                            Census_SystemVolumeTotalCapacity,
-                                            Census_TotalPhysicalRAM,
-                                            Census_HasOpticalDiskDrive, 
-                                            Census_IsAlwaysOnAlwaysConnectedCapable, 
-                                            Census_IsPenCapable, 
-                                            Census_IsPortableOperatingSystem, 
-                                            Census_IsSecureBootEnabled, 
-                                            Census_IsTouchEnabled,
-                                            Firewall, 
-                                            HasTpm, 
-                                            IsProtected, 
-                                            IsSxsPassiveMode, 
-                                            SMode, 
-                                            Wdft_IsGamer))
+                                                     Census_ProcessorCoreCount,
+                                                     Census_SystemVolumeTotalCapacity,
+                                                     Census_TotalPhysicalRAM,
+                                                     Census_HasOpticalDiskDrive, 
+                                                     Census_IsAlwaysOnAlwaysConnectedCapable, 
+                                                     Census_IsPenCapable, 
+                                                     Census_IsPortableOperatingSystem, 
+                                                     Census_IsSecureBootEnabled, 
+                                                     Census_IsTouchEnabled,
+                                                     Firewall, 
+                                                     HasTpm, 
+                                                     IsProtected, 
+                                                     IsSxsPassiveMode, 
+                                                     SMode, 
+                                                     Wdft_IsGamer))
 # I broke this part up into smaller sections so that I can better tell if the program is frozen or not. 
 categorical_features[, c(1:20)] <- sapply(categorical_features[, c(1:20)], as.character)
 categorical_features[, c(21:40)] <- sapply(categorical_features[, c(21:40)], as.character)
@@ -209,18 +209,18 @@ sapply(categorical_features, class)
 ## Figure out how many NA's are in each logical feature
 logical_na <- count_of_na %>% 
   filter(Features %in% c("Census_HasOpticalDiskDrive", 
-         "Census_IsAlwaysOnAlwaysConnectedCapable", 
-         "Census_IsPenCapable", 
-         "Census_IsPortableOperatingSystem", 
-         "Census_IsSecureBootEnabled", 
-         "Census_IsTouchEnabled", 
-         "Census_IsVirtualDevice", 
-         "Firewall", 
-         "HasTpm", 
-         "IsProtected", 
-         "IsSxsPassiveMode", 
-         "SMode", 
-         "Wdft_IsGamer"))
+                         "Census_IsAlwaysOnAlwaysConnectedCapable", 
+                         "Census_IsPenCapable", 
+                         "Census_IsPortableOperatingSystem", 
+                         "Census_IsSecureBootEnabled", 
+                         "Census_IsTouchEnabled", 
+                         "Census_IsVirtualDevice", 
+                         "Firewall", 
+                         "HasTpm", 
+                         "IsProtected", 
+                         "IsSxsPassiveMode", 
+                         "SMode", 
+                         "Wdft_IsGamer"))
 
 table(apply(logical_features, MARGIN = 1, function(x) sum(is.na(x)))) 
 # This indicates that ~7 mil rows don't have missing values. 995147 are missing at least one value. 
@@ -304,8 +304,8 @@ train_filtered$AppVersion <- str_sub(train_filtered$AppVersion, 1, 4)
 train_filtered$OsBuildLab <- as.data.frame(str_sub(train_filtered$OsBuildLab, 1, 5))
 train_filtered <- train_filtered %>% 
   mutate(OsBuildLab = case_when(OsBuildLab == 16299 ~ 16299,
-                             OsBuildLab == 17134 ~ 17134,
-                             T ~ 0))
+                                OsBuildLab == 17134 ~ 17134,
+                                T ~ 0))
 
 # IeVerIdentifier
 train_filtered <- train_filtered %>% 
@@ -478,14 +478,16 @@ train_filtered <- train_filtered %>%
 
 
 ## One Hot encode categorical_features
-library(mltools) #https://cran.r-project.org/web/packages/mltools/mltools.pdf and https://www.rdocumentation.org/packages/mltools/versions/0.3.5/topics/one_hot
-library(data.table)
+#library(mltools) #https://cran.r-project.org/web/packages/mltools/mltools.pdf and https://www.rdocumentation.org/packages/mltools/versions/0.3.5/topics/one_hot
+#library(data.table)
+#categorical_features <- as.data.table(categorical_features)
+#temp_3 <- one_hot(categorical_features, cols = "auto", sparsifyNAs = FALSE, naCols = FALSE, dropCols = TRUE, dropUnusedLevels = FALSE)
+#temp_4 <- one_hot(categorical_features)
 
-categorical_features <- as.data.table(categorical_features)
+## Apparently one-hot encoding can be done automatically by most R modeling paths. It doesn't need to be explicitly defined 
+# https://www.r-bloggers.com/encoding-categorical-variables-one-hot-and-beyond/
 
-temp_3 <- one_hot(categorical_features, cols = "auto", sparsifyNAs = FALSE, naCols = FALSE, dropCols = TRUE, dropUnusedLevels = FALSE)
+summary(train_filtered)
 
-temp_4 <- one_hot(categorical_features)
-
-
-
+# Convert character fields to factors 
+#categorical_factors <- as.factor(categorical_features) #This takes forever to run
