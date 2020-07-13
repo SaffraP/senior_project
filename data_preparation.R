@@ -416,9 +416,10 @@ small_train <- small_train %>%
          Census_TotalPhysicalRAM
          )
 
+#library(writexl)
+#write_xlsx(small_train, "C:\\Users\\saffra\\Documents\\senior_project\\senior_project\\Data\\small_train.xlsx")
 
-
-
+# NEED TO ADD THE FEATURE BACK IN THAT INDICATES IF THE MACHINE WAS INFECTED OR NOT
 
 
 
