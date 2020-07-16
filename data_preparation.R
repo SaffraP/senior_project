@@ -53,7 +53,8 @@ logical_features <- train_filtered %>% select(Census_HasOpticalDiskDrive,
                                               IsProtected, 
                                               IsSxsPassiveMode, 
                                               SMode, 
-                                              Wdft_IsGamer)
+                                              Wdft_IsGamer,
+                                              HasDetections)
 logical_features[, c(1:12)] <- sapply(logical_features[, c(1:12)], as.logical)
 #sapply(logical_features, class)
 lapply(logical_features, table) # Shows how many values are T/F. Need to figure out what happened to the NA's though and possibly drop them or fill them in with other values. 
@@ -99,7 +100,8 @@ logical_na <- count_of_na %>%
                          "IsProtected", 
                          "IsSxsPassiveMode", 
                          "SMode", 
-                         "Wdft_IsGamer"))
+                         "Wdft_IsGamer",
+                         "HasDetections"))
 
 table(apply(logical_features, MARGIN = 1, function(x) sum(is.na(x)))) 
 # This indicates that ~7 mil rows don't have missing values. 995147 are missing at least one value. 
@@ -398,7 +400,8 @@ small_train <- train_filtered[sample(nrow(train_filtered), 1000000), ]
 
 # Exclude the categorical features since they're not label or one hot encoded yet
 small_train <- small_train %>% 
-  select(Census_HasOpticalDiskDrive, 
+  select(HasDetections,
+         Census_HasOpticalDiskDrive, 
          Census_IsAlwaysOnAlwaysConnectedCapable, 
          Census_IsPenCapable, 
          Census_IsPortableOperatingSystem, 
