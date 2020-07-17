@@ -4,11 +4,63 @@ library(tidyverse)
 
 # RF on small_train
 # https://towardsdatascience.com/random-forest-in-r-f66adf80ec9
-# Somewhere along the way I lost the HasDetections column. I need to add that back in before I can run anything. 
-# rf <- randomForest(
-#   num ~ .,
-#   data=small_train
-# )
+library(randomForest)
+require(caTools)
+
+small_train <- read_csv("C:\\Users\\saffra\\Documents\\senior_project\\senior_project\\Data\\small_train.csv")
+dim(small_train) #88468, 17
+summary(small_train)
+sapply(small_train, class)
+# This def needs to be automated, it's just late so I'm doing it the surefire way
+small_train <- transform(small_train,
+                         HasDetections = as.factor(HasDetections),
+                         Census_HasOpticalDiskDrive = as.factor(Census_HasOpticalDiskDrive),
+                         Census_IsAlwaysOnAlwaysConnectedCapable = as.factor(Census_IsAlwaysOnAlwaysConnectedCapable),
+                         Census_IsPenCapable = as.factor(Census_IsPenCapable),
+                         Census_IsPortableOperatingSystem = as.factor(Census_IsPortableOperatingSystem),
+                         Census_IsSecureBootEnabled = as.factor(Census_IsSecureBootEnabled),
+                         Census_IsTouchEnabled = as.factor(Census_IsTouchEnabled),
+                         Firewall = as.factor(Firewall),
+                         HasTpm = as.factor(HasTpm),
+                         IsProtected = as.factor(IsProtected),
+                         IsSxsPassiveMode = as.factor(IsSxsPassiveMode),
+                         SMode  = as.factor(SMode),
+                         Wdft_IsGamer = as.factor(Wdft_IsGamer),
+                         Census_PrimaryDiskTotalCapacity = as.factor(Census_PrimaryDiskTotalCapacity),
+                         Census_ProcessorCoreCount = as.factor(Census_ProcessorCoreCount),
+                         Census_SystemVolumeTotalCapacity = as.character(Census_SystemVolumeTotalCapacity),
+                         Census_TotalPhysicalRAM = as.factor(Census_TotalPhysicalRAM)
+)
+sapply(small_train, class) # Now they're mixed data types. 
+summary(small_train)
+
+# Split the data (this is already done in the big picture but I'm doing it here anyways)
+sample = sample.split(small_train$HasDetections, SplitRatio = .75)
+train_2 = subset(small_train, sample == TRUE)
+test_2  = subset(small_train, sample == FALSE)
+dim(train_2)
+dim(test_2)
+
+# Now initialize the RF class
+rf <- randomForest(
+  HasDetections ~ .,
+  data=train_2
+)
+print(rf) # OOB estimate of  error rate: 44.1%
+
+## Need to load and clean the real test data
+pred = predict(rf, newdata=test_2[-18]) #Replace 14 with the number of columns in train
+cm = table(test_2[,17], pred)
+print(cm)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -34,7 +86,14 @@ model <- glm(HasDetections ~., data = train, family = binomial(link='logit'))
 summary(model)
 anova(model, test="Chisq")
 # pchisq(848464, 620489, lower.tail = FALSE) # This came from the notebook but doesn't give an output... concerning
-# See the link above for methods on how to rate the fit. (like R2 or ROC)
+# See the link above for methods on how to rate the fit. (like McFadden R2 or ROC)
+library(pscl)
+pR2(model) # McFadden R2: 1.426855e-02
+
+
+
+
+
 
 
 # Second, run a RF

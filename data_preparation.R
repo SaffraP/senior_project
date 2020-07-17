@@ -395,7 +395,7 @@ train_filtered <- train_filtered %>%
 # I want a smaller dataset to play with.
 
 # Select _# of random rows 
-small_train <- train_filtered[sample(nrow(train_filtered), 1000000), ]
+small_train <- train_filtered[sample(nrow(train_filtered), 100000), ]
 
 
 # Exclude the categorical features since they're not label or one hot encoded yet
@@ -419,11 +419,11 @@ small_train <- small_train %>%
          Census_TotalPhysicalRAM
          )
 
-#library(writexl)
-#write_xlsx(small_train, "C:\\Users\\saffra\\Documents\\senior_project\\senior_project\\Data\\small_train.xlsx")
+# Removing NA's
+small_train <- na.omit(small_train)
 
-# NEED TO ADD THE FEATURE BACK IN THAT INDICATES IF THE MACHINE WAS INFECTED OR NOT
-
+# 88468 observations
+#write.csv(small_train, "C:\\Users\\saffra\\Documents\\senior_project\\senior_project\\Data\\small_train.csv")
 
 
 
